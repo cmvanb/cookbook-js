@@ -3,3 +3,6 @@
 
 # NPM packages
 node_modules/
+
+# Build artifacts
+dist/
