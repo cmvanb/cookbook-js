@@ -5,7 +5,8 @@ const path = require('path');
 
 const port = 7767;
 
-const dist = '../dist';
+const distPath = '../dist';
+const contentPath = '/content';
 
 const mimeType = {
     '.ttf':  'application/font-sfnt',
@@ -38,6 +39,26 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    if (req.url.includes('api')) {
+        handleAPIRequest(req, res);
+    } else {
+        handlePathRequest(req, res);
+    }
+});
+
+const handleAPIRequest = (req, res) => {
+    switch (req.url) {
+        case 'api/recipes':
+            handleGetRecipe(req, res);
+            break;
+        default:
+            res.writeHead(500);
+            res.end(`${req.url} error: Bad API path.`);
+            break;
+    }
+};
+
+const handlePathRequest = (req, res) => {
     const parsedUrl = url.parse(req.url);
 
     const sanitizedPath =
@@ -45,11 +66,11 @@ const server = http.createServer((req, res) => {
         .normalize(parsedUrl.pathname)
         .replace(/^(\.\.[\/\\])+/, '');
 
-    let pathName = path.join(__dirname, dist, sanitizedPath);
+    let pathName = path.join(__dirname, distPath, sanitizedPath);
 
     fs.exists(pathName, (exists) => {
         if (!exists) {
-            res.statusCode = 404;
+            res.writeHead(404);
             res.end(`${pathName} error: Not found.`);
             return;
         }
@@ -60,8 +81,8 @@ const server = http.createServer((req, res) => {
 
         fs.readFile(pathName, (error, data) => {
             if (error) {
-                res.statusCode = 500;
-                res.end(`${pathName} error: ${error}`)
+                res.writeHead(500);
+                res.end(`${pathName} error: ${error}`);
             } else {
                 const extension = path.parse(pathName).ext;
                 res.setHeader('Content-type', mimeType[extension] || 'text/plain');
@@ -69,7 +90,12 @@ const server = http.createServer((req, res) => {
             }
         })
     });
-});
+};
+
+// TODO: extract to its own module
+const handleGetRecipe = (req, res) => {
+    // TODO: read recipe json and return it
+};
 
 server.listen(port, () => {
     console.log(`Server listening on: http://localhost:${port}`);
