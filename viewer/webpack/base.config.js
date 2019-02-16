@@ -2,16 +2,16 @@ import path from 'path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 
 const rootPath = path.resolve(__dirname, '..');
-const srcPath = path.join(rootPath, 'src');
+const clientPath = path.join(rootPath, 'client');
 
 const baseConfig = (env, {}) => ({
-    entry: path.join(srcPath, 'entry.js'),
+    entry: path.join(clientPath, 'entry.js'),
     output: {
         filename: 'app.js',
     },
     resolve: {
         extensions: ['.js', '.jsx', '.json', '.css', '.svg'],
-        modules: [srcPath, 'node_modules']
+        modules: [clientPath, 'node_modules']
     },
     module: {
         rules: [
@@ -32,7 +32,7 @@ const baseConfig = (env, {}) => ({
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: path.join(srcPath, 'index.html'),
+            template: path.join(clientPath, 'index.html'),
             filename: './index.html'
         })
     ]
